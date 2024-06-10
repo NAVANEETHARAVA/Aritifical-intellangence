@@ -1,0 +1,41 @@
+def successors(state):
+    # Generate valid successor states from the current state
+    # (move 1 or 2 missionaries/cannibals across the river)
+    m, c, b = state
+    valid_states = []
+    
+    for dm in range(3):
+        for dc in range(3):
+            if 1 <= dm + dc <= 2:
+                new_m = m - dm if b == 1 else m + dm
+                new_c = c - dc if b == 1 else c + dc
+                new_b = 1 - b
+                if 0 <= new_m <= 3 and 0 <= new_c <= 3:
+                    valid_states.append((new_m, new_c, new_b))
+    
+    return valid_states
+
+def dfs(state, path, depth):
+    if state == (0, 0, 0):
+        print("Solution path:", path)
+        return True
+    elif depth == 0:
+        return False
+    
+    for next_state in successors(state):
+        if next_state not in path:
+            path.append(next_state)
+            if dfs(next_state, path, depth - 1):
+                return True
+            path.pop()
+    
+    return False
+
+def solve_missionaries_cannibals():
+    initial_state = (3, 3, 1)
+    max_depth = 11  # Adjust as needed
+    
+    print("Starting from:", initial_state)
+    dfs(initial_state, [initial_state], max_depth)
+
+solve_missionaries_cannibals()
