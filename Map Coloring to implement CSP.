@@ -1,0 +1,54 @@
+class MapColoringCSP:
+    def __init__(self, regions, neighbors):
+        self.regions = regions
+        self.neighbors = neighbors
+        self.assignment = {}
+
+    def is_valid_assignment(self, region, color):
+        for neighbor in self.neighbors.get(region, []):
+            if neighbor in self.assignment and self.assignment[neighbor] == color:
+                return False
+        return True
+
+    def backtrack(self):
+        if len(self.assignment) == len(self.regions):
+            return True
+
+        unassigned_region = next((r for r in self.regions if r not in self.assignment), None)
+        if not unassigned_region:
+            return False
+
+        for color in ['Red', 'Green', 'Blue']:
+            if self.is_valid_assignment(unassigned_region, color):
+                self.assignment[unassigned_region] = color
+                if self.backtrack():
+                    return True
+                del self.assignment[unassigned_region]
+
+        return False
+
+    def solve(self):
+        if self.backtrack():
+            return self.assignment
+        return None
+
+# Example usage:
+regions = ['WA', 'NT', 'SA', 'Q', 'NSW', 'V', 'T']
+neighbors = {
+    'WA': ['NT', 'SA'],
+    'NT': ['WA', 'SA', 'Q'],
+    'SA': ['WA', 'NT', 'Q', 'NSW', 'V'],
+    'Q': ['NT', 'SA', 'NSW'],
+    'NSW': ['Q', 'SA', 'V'],
+    'V': ['SA', 'NSW']
+}
+
+map_coloring = MapColoringCSP(regions, neighbors)
+solution = map_coloring.solve()
+
+if solution:
+    print("Valid coloring:")
+    for region, color in solution.items():
+        print(f"{region}: {color}")
+else:
+    print("No valid coloring found.")
