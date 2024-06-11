@@ -1,0 +1,45 @@
+import heapq
+
+def a_star(graph, start, goal, heuristic):
+    open_list = [(0, start)]  # Priority queue (f-value, node)
+    g_values = {start: 0}  # Cost from start to each node
+    parents = {}  # Parent nodes for path reconstruction
+
+    while open_list:
+        _, current_node = heapq.heappop(open_list)
+
+        if current_node == goal:
+            # Reconstruct the path
+            path = []
+            while current_node:
+                path.append(current_node)
+                current_node = parents.get(current_node)
+            return path[::-1]
+
+        for neighbor, cost in graph.get(current_node, []):
+            tentative_g = g_values[current_node] + cost
+            if neighbor not in g_values or tentative_g < g_values[neighbor]:
+                g_values[neighbor] = tentative_g
+                f_value = tentative_g + heuristic(neighbor, goal)
+                heapq.heappush(open_list, (f_value, neighbor))
+                parents[neighbor] = current_node
+
+    return None
+
+# Example usage:
+graph = {
+    'A': [('B', 1), ('C', 4)],
+    'B': [('D', 3), ('E', 5)],
+    'C': [('F', 2)],
+    'D': [('F', 1), ('E', 1)],
+    'E': [('F', 2)]
+}
+
+heuristic = lambda node, goal: 0  # Use 0 as heuristic for Dijkstra's behavior
+start_node, goal_node = 'A', 'F'
+path = a_star(graph, start_node, goal_node, heuristic)
+
+if path:
+    print("Shortest path:", path)
+else:
+    print("No path found.")
