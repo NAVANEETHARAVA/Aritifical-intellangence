@@ -1,0 +1,37 @@
+initial_state(state(at_door, on_floor, at_window, hanging)).
+
+% Goal state: banana is grabbed
+goal_state(state(_, _, _, grabbed)).
+
+% Move action: Monkey moves from one place to another
+move(state(From, on_floor, Box, Banana), state(To, on_floor, Box, Banana)) :-
+    member(From, [at_door, at_window, at_middle]),
+    member(To, [at_door, at_window, at_middle]),
+    From \= To.
+
+% Push action: Monkey pushes the box from one place to another
+push(state(From, on_floor, From, Banana), state(To, on_floor, To, Banana)) :-
+    member(From, [at_door, at_window, at_middle]),
+    member(To, [at_door, at_window, at_middle]),
+    From \= To.
+
+% Climb action: Monkey climbs onto the box
+climb(state(Pos, on_floor, Pos, Banana), state(Pos, on_box, Pos, Banana)).
+
+% Climb down action: Monkey climbs down from the box
+climb_down(state(Pos, on_box, Pos, Banana), state(Pos, on_floor, Pos, Banana)).
+
+% Grab action: Monkey grabs the banana
+grab(state(at_middle, on_box, at_middle, hanging), state(at_middle, on_box, at_middle, grabbed)).
+
+% Plan: find a sequence of actions to achieve the goal state
+plan(State, _, []) :-
+    goal_state(State).
+
+plan(State, Visited, [Action | Actions]) :-
+    call(Action, State, NewState),
+    \+ member(NewState, Visited),
+    plan(NewState, [NewState | Visited], Actions).
+
+% Start the planning process
+solve :-
